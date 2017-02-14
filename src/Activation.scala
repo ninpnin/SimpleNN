@@ -2,6 +2,8 @@
   * Created by vaino on 13.2.2017.
   */
 import scala.math.exp
+
+//Class template for different activation functions
 abstract class Activation {
 
   def function(x: Double): Double
@@ -9,6 +11,7 @@ abstract class Activation {
 
 }
 
+//Sigmoid as the most basic function
 object Sigmoid extends Activation {
 
   def function(x: Double) = 1.0 / (1 + exp(-x))

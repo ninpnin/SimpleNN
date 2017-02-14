@@ -7,6 +7,8 @@ import org.scalatest._
 import org.scalactic.TolerantNumerics
 import org.scalatest.FunSuite
 
+
+//Unit tests for
 class UnitTests extends FlatSpec {
 
   //Set hyper parameters

@@ -6,6 +6,7 @@ import java.io.PrintWriter
 import scala.collection.mutable.Buffer
 import scala.io.Source
 
+//Class for creating example data
 object DataCreator {
 
   //Matemaattiset funktiot, R^2 => R

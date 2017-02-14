@@ -4,14 +4,17 @@
 
 import Helper.getEntry
 import Helper.difference
-import Helper.exp2
 
+/*
+  This class represents a simple neural net with one hidden layer. R^n => R^m
+ */
 class Neural(act: Activation, hyper: (Int, Int, Int)) {
 
   val inputs = hyper._1
   val hidden = hyper._2
   val outputs = hyper._3
 
+  //Matrices WD and WU, between layers 1, 2 and 2, 3 respectively
   var WD: Array[Array[Double]] = Array.ofDim[Double](inputs, hidden)
   var WU: Array[Array[Double]] = Array.ofDim[Double](hidden, outputs)
 
@@ -23,14 +26,18 @@ class Neural(act: Activation, hyper: (Int, Int, Int)) {
     for (a <- 0 until inputs; b <- 0 until hidden) deltaWD(a)(b) = 0.0
     for (i <- 0 until hidden; j <- 0 until outputs) deltaWU(i)(j) = 0.0
   }
+
+  //Reset all weights
   def shuffle() {
     for (a <- 0 until inputs; b <- 0 until hidden) WD(a)(b) = getEntry * 2
     for (i <- 0 until hidden; j <- 0 until outputs) WU(i)(j) = getEntry
   }
 
+  //Set activation function
   def activation(e: Double): Double = act.function(e)
   def derivative(e: Double): Double = act.derivative(e)
 
+  //Second vector
   def xD(x: Vector[Double]): Vector[Double] = {
     require(x.length == inputs)
     (for (b <- 0 until hidden) yield {
@@ -39,16 +46,17 @@ class Neural(act: Activation, hyper: (Int, Int, Int)) {
     }).toVector
   }
 
+  //Third vector
   def xU(x: Vector[Double]): Vector[Double] = {
     require(x.length == hidden)
     (for (e <- 0 until hidden) yield activation(x(e))).toVector
   }
-
   def derivativexU(x: Vector[Double]): Vector[Double] = {
     require(x.length == hidden)
     (for (e <- 0 until hidden) yield derivative(x(e))).toVector
   }
 
+  //Fourth vector / output
   def xHat(x: Vector[Double]): Vector[Double] = {
     require(x.length == hidden)
     (for (b <- 0 until outputs) yield {
@@ -57,24 +65,29 @@ class Neural(act: Activation, hyper: (Int, Int, Int)) {
     }).toVector
   }
 
+  // input => output
   def approx(in: Vector[Double]) = xHat(xU(xD(in)))
 
+  //Error of a single data point
   def error(in: Vector[Double], out: Vector[Double]) = {
     val xHat = approx(in)
     difference(out, xHat)
   }
 
+  //Derivative of the outer error function
   def errorDerivative(in: Vector[Double], out: Vector[Double]): Vector[Double] = {
     val xHat = approx(in)
     (out zip xHat).map(x => 2 * (x._1 - x._2) )
   }
 
+  //Error function with a dataset
   def errorFunction(data: Vector[(Vector[Double], Vector[Double])]) = {
     (for (dataPoint <- data) yield {
       error(dataPoint._1, dataPoint._2)
     }).sum
   }
 
+  //Derivative of output with respect to matrix WU
   def deltaU(i: Int, alpha: Int, beta: Int, dataPoint: Vector[Double]): Double = {
     require(dataPoint.length == inputs)
     if (i == beta) {
@@ -84,11 +97,13 @@ class Neural(act: Activation, hyper: (Int, Int, Int)) {
     }
   }
 
+  //Derivative of output with respect to matrix WD
   def deltaD(i: Int, alpha: Int, beta: Int, dataPoint: Vector[Double]): Double = {
     require(dataPoint.length == inputs)
     WU(beta)(i) * derivativexU(xD(dataPoint))(beta) * dataPoint(alpha)
   }
 
+  //Derivative of error with respect to matrix WU
   def errorGradientU(data: Vector[(Vector[Double], Vector[Double])]) = {
     nullify()
     val deltaWUclone = deltaWU.clone()
@@ -105,6 +120,7 @@ class Neural(act: Activation, hyper: (Int, Int, Int)) {
     deltaWUclone
   }
 
+  //Derivative of error with respect to matrix WD
   def errorGradientD(data: Vector[(Vector[Double], Vector[Double])]) = {
     nullify()
     val deltaWDclone = deltaWD.clone()
@@ -121,6 +137,7 @@ class Neural(act: Activation, hyper: (Int, Int, Int)) {
     deltaWDclone
   }
 
+  //Train the net with some dataset
   def optimize(data: Vector[(Vector[Double],Vector[Double])], rounds: Int, speed1: Double, speed2: Double) = {
     require(data(0)._1.length == inputs)
     require(data(0)._2.length == outputs)

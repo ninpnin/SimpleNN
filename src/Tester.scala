@@ -1,6 +1,8 @@
 /**
   * Created by vaino on 13.2.2017.
   */
+
+/* */
 object Tester extends App {
 
   val nn = new Neural(Sigmoid, (2,4,2))
