@@ -162,14 +162,6 @@ class Neural(act: Activation, hyper: (Int, Int, Int)) {
         println("Gradient 2, Error : ", errorFunction(data))
     }
 
-
-    while (true) {
-      val x = readLine().toString.toDouble
-      val y = readLine().toString.toDouble
-      println("In", Vector(x,y))
-      println("Out", approx(Vector(x,y))(0), approx(Vector(x,y))(1))
-      println("("+ DataCreator.function1(x,y) + ", " + DataCreator.function2(x,y) + ")")
-    }
   }
 
 }
