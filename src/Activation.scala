@@ -26,3 +26,10 @@ object Softplus extends Activation {
   def derivative(x: Double) = 1.0 / (1 + exp(-x))
 
 }
+
+object Tanh extends Activation {
+
+  def function(x: Double) = (exp(x) - exp(-x) )/(exp(x) + exp(-x))
+  def derivative(x: Double) = 1 - this.function(x) * this.function(x)
+
+}
